@@ -71,7 +71,8 @@ const initializeExpressionDictionary = () => {
         ExpressionStatement : handleExpressionStatement,
         WhileStatement : handleWhileExpression,
         IfStatement : handleIfExpression,
-        AssignmentExpression : handleAssignmentStatement
+        AssignmentExpression : handleAssignmentStatement,
+        UpdateExpression : handleUpdateStatement
     };
 };
 
@@ -127,6 +128,21 @@ const handleAssignmentStatement = (p) => {
     let sValue = resolveStringValue(p.right);
     variables[p.left.name] = value;
     let str = p.left.name + ' = ' + sValue + ';';
+    if (typeof last === 'number' && graph[last].type === 'n'){
+        graph[last].content += '\n' + str;
+    }
+    else{
+        makeSquare(str);
+        connectToPrev();
+        last = count - 1;
+    }
+};
+
+const handleUpdateStatement = (p) => {
+    let value = p.operator === '++' ? 1 : -1;
+    let sValue = p.argument.name + p.operator;
+    variables[p.argument.name] = variables[p.argument.name] + value;
+    let str = sValue + ';';
     if (typeof last === 'number' && graph[last].type === 'n'){
         graph[last].content += '\n' + str;
     }
